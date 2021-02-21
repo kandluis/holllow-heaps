@@ -1,6 +1,7 @@
 %% LyX 2.0.4 created this file.  For more info, see http://www.lyx.org/.
 %% Do not edit unless you really know what you are doing.
-\documentclass[11pt,oneside,english]{amsart}
+\documentclass[10pt,twocolumn,letterpaper]{article}
+\usepackage{cvpr}
 \usepackage[T1]{fontenc}
 \usepackage[latin9]{inputenc}
 \usepackage{geometry}
@@ -45,18 +46,41 @@
 \newcommand*{\UU}{\mathscr{U}}   % Universe.
 \newcommand*{\eps}{\varepsilon}  % Epsilon.
 
+
+\cvprfinalcopy
+
+\ifcvprfinal\pagestyle{empty}\fi
 \begin{document}
 
-\title{Analyzing Hollow Heaps}
-\author{Luis Perez (luis0@stanford.edu)}
-\author{ Dana Murphy (dkm0713@stanford.edu)}
-\author{Eric Martin (ericmarkmartin@stanford.edu)}
+\title{Analyzing Hollow Heap Varients and their Computational Properties}
+
+
+\author{
+  Luis Perez \\
+  Department of Computer Science \\
+  Stanford University \\
+  \texttt{luis0@stanford.edu}
+  
+  \and
+  Dana Murphy  \\
+  Department of Computer Science\\
+  Stanford University\\
+  \texttt{dkm0713@stanford.edu}
+  
+  \and
+  
+  \\
+  Eric Martin \\
+  Department of Computer Science \\
+  Stanford University \\
+  \texttt{ericmarkmartin@stanford.edu}
+}
 
 \maketitle
 
 \section{Introduction}
 \label{sec:introduction}
-In this paper, we motivate, introduce, describe, and expand on existing work surrounding the relatively novel data structure (2015) of Hollow Heaps, as first described by Hansen, Kaplan, Tarjan, and Zwich \cite{HollowHeapsIntro}. A Hollow Heap is primarily a data structure designed to provide an efficient and simple mechanism for extracting the element with the minimum key in a set of $n$ elements, subject to the constraints that insertions, deletions, and key changes can occur dynamically and must also be supported efficiently. One-root, single-parent Hollow Heaps are one of the more simple data structures to achieve $O(\log n)$ amortized run-time for min-extraction, along with $O(1)$ run-time for all other operations.
+In this paper, we motivate, introduce, describe, and expand on existing work surrounding the relatively novel data structure (2015) of Hollow Heaps, as first described by Hansen, Kaplan, Tarjan, and Zwich \cite{HollowHeapsIntro}. A Hollow Heap is primarily a data structure designed to provide an efficient and simple mechanism for extracting the element with the minimum key in a set of $n$ elements, subject to the constraints that insertions, deletions, and key changes can occur dynamically and must also be supported efficiently. One-root, single-parent Hollow Heaps are one of the more simple data structures to achieve $O(\log n)$ amortized run-time for min-extraction, along with $O(1)$ run-time for all other operations. This paper presents a detailed analysis of the original data structure as well as expanded and detailed analaysis of multiple varients which provide distinct trade-offs.
 
 
 \section{Problem and Objective}
@@ -75,7 +99,8 @@ One concrete data structure that is often used to support priority queue operati
 
 Fibonacci Heaps \cite{FibHeapsRevisited} are a particularly well-known, theoretically efficient implementation of a priority queue. As we can see in Table \ref{table:heap_complexity_reference}, Fibonacci heaps offer amortized $O(\log n)$ for \texttt{ExtractMin} along with amortized $O(1)$ run-time for other operations. While these remarkable amortized bounds have helped popularize this algorithm, it remains a conceptually difficult data structure, requiring a rather in-depth understanding of amortized analysis and binomial heaps. While alternative data structures to Fibonacci heaps have been proposed, many of them don't match the bounds of Fibonacci Heaps (e.g. Quake heaps), focus on simplifying Fibonacci heap in small ways (e.g. Strict Fibonacci Heap), or provide an algorithm that is as complex or more complex than Fibonacci heaps (e.g. Worst-Case priority queues)\cite{waybackMachine}.
 
-\begin{table}[!ht]
+\begin{table*}[!ht]
+\centering
 \begin{tabular}{l|l|l|l|l|l|}
 \cline{2-6}
 & \textbf{Binary} & \textbf{Leftist} & \textbf{Binomial} & \textbf{Fibonacci} & \textbf{Pairing} \\ \hline
@@ -87,7 +112,7 @@ Fibonacci Heaps \cite{FibHeapsRevisited} are a particularly well-known, theoreti
 \end{tabular}
 \caption{A matrix showing typical run-times of some variant implementation of the abstract heap data structure. Of interest is the theoretical advantage of Fibonacci Heaps across the board, with all but one operation running in constant time.}
 \label{table:heap_complexity_reference}
-\end{table}
+\end{table*}
 
 Our primary objective in this paper is to introduce and analyze the most salient properties of Hollow Heaps \cite{HollowHeapsIntro}, a variant of the Heap implementation above that can ultimately be made to achieve the same run-times as Fibonacci Heaps (See Table \ref{table:heap_complexity_reference}), but has a more simple design than Fibonacci Heaps and other equally-efficient alternatives like Pairing Heap. 
 
@@ -176,13 +201,13 @@ This basically means that the rules of ranking is the same as it is for Fibonacc
 
 Several aspects of Hollow Heaps rely on this invariant; we'll be going over why it's important in a later section, but first, we need to provide more context on how the other functions in Hollow Heaps work.
 
-\begin{figure}[!ht]
+\begin{figure*}[!ht]
     \centering
     \includegraphics[scale=0.15]{figures/HollowHeaps-DecreaseKey-Comparsion-new.png}
     \includegraphics[scale=0.15]{figures/HollowHeaps-DecreasKey-SecondExample-new.png}
     \caption{This diagram shows a side-by-side comparison of the \texttt{DecreaseKey} operation in Hollow Heaps vs Fibonacci Heaps. Marked nodes are yellow, whereas hollow nodes are gray. We note that the Hollow Nodes preserve the structure of the original tree, and also mark points where future cuts must be made. In the top diagram, we first decrease the key of a node (pink), and then decrease the key of its child (pink) and show this effect on Fibonacci Heaps as well as Hollow Heaps. In the bottom diagram, we show the effect of \texttt{DecreaseKey} on a node with $>2$ children (pink) for both Fibonacci Heaps and Hollow Heaps.}
     \label{fig:DecreaseKeyHollowHeapFibHeapComparsion}
-\end{figure}
+\end{figure*}
 
 %%%%%%%%% END: SECTION COVERING DecreaseKey %%%%
 
@@ -206,13 +231,13 @@ For an example of this function, see Figure \ref{fig:delete_min_hollow_heap}.
 The amortized runtime of this operation is $O(\log N)$, where N is the total number of nodes in the tree. We will discuss calculating the amortized runtime of this operation in a later section.
 
 
-\begin{figure}
+\begin{figure*}
     \centering
     \includegraphics[scale=0.15]{figures/DestroyingHollowNodes-new.png}
     \includegraphics[scale=0.15]{figures/LinkingTrees-new.png}
     \caption{In this diagram, we show the sequence of steps which occur when an \texttt{ExtractMin} operation is carried out. Hollow nodes (gray) already exists throughout the tree. $(1) \to (2)$ deletes the minimum node from the heap and adds its children sub-trees as new trees. $(2) \to (6)$ shows the process of removing hollow nodes (gray) which becomes roots, and doing this until now hollow roots remain. $(7) \to (10)$ how the process of linking same-rank nodes until only nodes of distinct rank remain.}
     \label{fig:delete_min_hollow_heap}
-\end{figure}
+\end{figure*}
 
 %%%%%%%%% END: SECTION COVERING ExtractMin %%%%
 
@@ -254,35 +279,35 @@ It may be unclear why we have to keep at most a constant number of children for 
 
 \subsection{Variant 1 - Let hollow nodes keep all of their children:}
 \label{subsubsec:variant1}
-\begin{figure}
+\begin{figure*}
     \centering
     \includegraphics[scale=0.75]{figures/variant_1.png}
     \caption{These images show the iterations of the first degenerate example. $(1) \to (2)$ calls decrease key on all of the nodes in the tree. $(2) \to (3)$ inserts one more node in the heap. $(3) \to (4)$ performs the first half of extract-min, which deletes the minimum node as well as all of the hollow nodes. $(4) \to (1)$ performs the second half of extract-min by melding all of the nodes together.}
     \label{fig:variant_1}
-\end{figure}
+\end{figure*}
 The issue here is that you could have a full tree made up almost entirely of hollow nodes, which leads to a very expensive \texttt{ExtractMin}. To see this, build up a full tree with a rank of $r$ with $n$ elements. call decrease-key on all of the elements in the tree, converting every node in the original tree except the root to a hollow node and creating $(n-1)$ new one-node roots. Add one more non-minimum node, resulting in $n$ additional roots with one element. Call extract-min. This results all of the elements in the original tree being deleted and all of the single element roots being linked together. The final result will be a tree equivalent to the original full tree with a rank $r$. An example of this is provided in Figure \ref{fig:variant_1}.We can repeat this process an arbitrarily large number of times.\\
 Each of the iterations will require one \texttt{ExtractMin}, but that \texttt{ExtractMin} will require $O(r^2)$ operations to delete all of the hollow nodes and merge all of the single-node roots. Even if all other operations had a cost of 0, we have $O(r)$ total operations for each iteration, and the total runtime will be lower-bounded by $O(r^2)$, which is higher than the desired runtime $O(r)$.
 
 \subsection{Variant 2- Do not allow hollow nodes to have any children:}
 \label{subsec:variant2}
-\begin{figure}
+\begin{figure*}
     \centering
     \includegraphics[scale=0.75]{figures/variant_2.png}
     \caption{These images show the second degenerate example. $(1) \to (2)$ calls decrease key on all of the children of the root. The boxed tree is the tree we are interested in for our analysis.}
     \label{fig:variant_2}
-\end{figure}
+\end{figure*}
 With this we can create a degenerate case that violates the heap invariant. Suppose we had a full tree of rank r (we can generate this by inserting $n+1$ nodes and calling one extract-min.) Next, we can decrease the key for each of the children, where all of the new values are less than the original minimum and the values decrease with the rank of the original child. The result is that the original tree will contain a node of rank $r$ and $r$ hollow nodes of rank 0. An example of this is provided in Figure \ref{fig:variant_2}. We could recursively call a series of extract-min and decrease key for the smaller trees until only the tree of rank $r$ remains, but this is not necessary for our analysis.
 
 This tree violates one of our invariants, as our root has a rank $r$ but the number of descendants it has is $r$, which less than $F_{r+3} - 1$. This is similar to the type of degenerate cases we try to avoid using cascading cuts in Fibonacci heap; we are cutting off large portions of the tree without maintaining a balancing structure in the tree.
 
 \subsection{Variant 3- Allow hollow nodes to have at most one child:}
 \label{subsec:variant3}
-\begin{figure}
+\begin{figure*}
     \centering
     \includegraphics[scale=0.75]{figures/variant_3.png}
     \caption{These images show the third degenerate example. $(1) \to (2)$ calls decrease key on every node that has more than one child. The boxed tree is the tree we are interested in for our analysis.}
     \label{fig:variant_3}
-\end{figure}
+\end{figure*}
 Once again, we can potentially create degenerate trees with this approach. Suppose we had a full tree of rank $r$. For every node with two children or more, decrease the key, resulting in at most one child for every node. In this case, each child of the root with rank $x$ will have $x-1$ descendants.  An example of this is provided in Figure \ref{fig:variant_3}.
 This also violates the heap invariant, because the total number of descendants will be $r(r-1)/2$, and $r(r-1)/2 < F[r+3]-1$ for any $r > 0$.
 
@@ -320,12 +345,12 @@ Because we only add a second parent when a node becomes hollow, it follows that 
 \subsection{\texttt{DecreaseKey}}
 \label{subsec:decrease_key_DAG}
 
-\begin{figure}
+\begin{figure*}
     \centering
     \includegraphics[scale=0.75]{figures/2Parent_decreaseKey.png}
     \caption{We perform a \texttt{DecreaseKey} operation on a node in a Hollow Heap that allows for two-parents. No children are moved, and instead the newly decreased node becomes a virtual parent of the newly hollowed node (in gray).}
     \label{fig:two-parent-hollow-heap-decrease-key}
-\end{figure}
+\end{figure*}
 
 As stated before, when we decrease a key in a two-parent hollow heap, we don't transfer any of the children. Instead, we create a node with the new key value and make the new node a virtual parent of the old node. Figure \ref{fig:two-parent-hollow-heap-decrease-key} contains an example of this. Once again, we maintain an invariant that is nearly identical to our original rank invariant.
 \begin{defn}
@@ -335,12 +360,12 @@ A node $u$ of rank $r$ has exactly $r$ \textit{virtual} children, of ranks $0,1,
 \subsection{\texttt{ExtractMin}}
 \label{subsec:extract_min_DAG}
 
-\begin{figure}
+\begin{figure*}
     \centering
     \includegraphics[scale=0.75]{figures/2Parent_extractMin.png}
     \caption{We perform an \texttt{ExtractMin} operation on a two-parent hollow node, where gray nodes are hollow nodes and the dotted lines are their virtual parents. $(1) \to (2)$ deletes the current min.  $(2) \to (3)$ destroys the new hollow root. Note that its hollow child is not destroyed, because it has a virtual parent. $(3) \to (4)$ links together two elements, one of which contains the hollow nodes as a virtual child, and $(4) \to (5)$ link the remaining roots.}
     \label{fig:two-parent-hollow-heap-extract-min}
-\end{figure}
+\end{figure*}
 
 Like one-parent hollow heaps, we perform \texttt{ExtractMin} by deleting the minimum node, destroying any roots which are hollow, and melding the remaining trees together. However, there are two important things to keep in mind. First, nodes with virtual parents are not considered roots, because roots do not have parents. Therefore, even if a hollow node's only remaining parent is a virtual parent, it is not destroyed. Furthermore, the rank of a virtual parent depends on the rank of the hollow node it was made a parent of. This can influence what roots that node can link with during the melding stage. See Figure \ref{fig:two-parent-hollow-heap-decrease-key} for an example of \texttt{ExtractMin}.
 
